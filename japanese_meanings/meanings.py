@@ -50,7 +50,16 @@ class YomichanDictionary(object):
                     read = meaning['reading'] or None
                     mn = meaning['glossary'] or None
 
-                    final_meanings.append({'Expression': src, 'Reading':read, 'Meaning':mn})
+                    final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
+
+                for meaning in meanings[0][1:]:
+                    if not meaning['source']==src:
+                        break
+
+                    read = meaning['reading'] or None
+                    mn = meaning['glossary'] or None
+                    final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
+
 
                 meaning_expr = meaning_expr[len(src):]
             else:
@@ -60,7 +69,6 @@ class YomichanDictionary(object):
         meaning_string = []
         for entries in sorted(final_meanings, key=lambda x: -len(x['Expression'])):
             if entries['Reading']:
-                #expression_string+=entries['Expression']+json.dumps([entries['Expression']])+json.dumps(re.search())
                 if re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
                     expression_string = expression_string.replace(entries['Expression'], entries['Expression']+'['+entries['Reading']+']')
             if entries['Meaning']:
@@ -68,7 +76,7 @@ class YomichanDictionary(object):
                     meaning_string.append(entries['Meaning'])
                 else:
                     if len(entries['Expression']) > 4 or re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
-                        meaning_string.append(entries['Expression']+' - '+entries['Meaning'])
+                        meaning_string.append(entries['Reading']+' - '+entries['Meaning'])
 
         return expression_string, '<br>'.join(meaning_string)
 
