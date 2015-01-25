@@ -25,8 +25,10 @@ NOTE_TYPE_NAME = 'japanese'
 try:
     import japanese.reading
     DO_READING = False
+    MENU_NAME = 'Bulk-add Meanings'
 except:
     DO_READING = True
+    MENU_NAME = 'Bulk-add Readings/Meanings'
 
 
 class YomichanDictionary(object):
@@ -123,7 +125,7 @@ def regenerate_bulk_readings(note_ids):
     if not yomidict:
         raise Exception('Yomidict not working.')
 
-    mw.checkpoint("Bulk-add Meanings")
+    mw.checkpoint(MENU_NAME)
     mw.progress.start()
 
     for nid in note_ids:
@@ -135,7 +137,7 @@ def regenerate_bulk_readings(note_ids):
     mw.reset()
 
 def setup_menu_item(browser):
-    a = QAction("Bulk-add Meanings", browser)
+    a = QAction(MENU_NAME, browser)
     browser.connect(a, SIGNAL("triggered()"), lambda e=browser: on_regenerate(e))
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
