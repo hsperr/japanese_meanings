@@ -1,4 +1,4 @@
-Better Japanese Support Plugin
+Japanese Meanings Dictionary
 
 I wrote this plugin because I saw that it is possible to enchance the Japanese Support Plugin by automatically adding the meanings to the fields aswell. Japanese Support is not required for this plugin to work but I found that it gives more accurate readings sometimes. So installing is recommended.
 https://ankiweb.net/shared/info/3918629684
@@ -15,7 +15,7 @@ Install:
 4. Fill the expression field, as soon as you click somewhere else or tab out of it it should fill the meaning.
 
 I am not super familiar with QT so if you want to change the desired note field names or change which card types should be considered open up the plugin code and change the names. I don't know how to make a proper menu.
-(should be located in Documents/Anki/addons/better_japanese_support/main.py)
+(should be located in Documents/Anki/addons/japanese_meanings/main.py)
 
 So far this plugin has only been testen on OSX but if Yomichan works for you this plugin should work too.
 
