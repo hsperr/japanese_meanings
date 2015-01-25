@@ -123,7 +123,7 @@ def regenerate_bulk_readings(note_ids):
     if not yomidict:
         raise Exception('Yomidict not working.')
 
-    mw.checkpoint("Better Bulk-add Readings")
+    mw.checkpoint("Bulk-add Meanings")
     mw.progress.start()
 
     for nid in note_ids:
@@ -135,7 +135,7 @@ def regenerate_bulk_readings(note_ids):
     mw.reset()
 
 def setup_menu_item(browser):
-    a = QAction("Better Bulk Add Readings/Meanings", browser)
+    a = QAction("Bulk-add Meanings", browser)
     browser.connect(a, SIGNAL("triggered()"), lambda e=browser: on_regenerate(e))
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
