@@ -43,6 +43,12 @@ So far this add-on has only been tested on OS X, but if Yomichan works for you, 
 If you have any issues or comments, want to contribute or donate, just post here or on GitHub: 
 https://github.com/hsperr/japanese_meanings
 
+DogeCoin:
+DKJeyQ8iaQBKqJ5v3ANd6y3J73Xux48UJV
+
+BTC:
+1NtsE4okrA9SruxcS5hVEyjDDGetFMeEL5
+
 Enjoy!
 
 
