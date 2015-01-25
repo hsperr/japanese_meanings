@@ -7,6 +7,7 @@
 #
 
 import re
+import os
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -20,6 +21,13 @@ source_field = 'Expression'
 reading_field = 'Reading'
 meaning_field = 'Meaning'
 NOTE_TYPE_NAME = 'japanese'
+
+try:
+    import japanese.reading
+    DO_READING = False
+except:
+    DO_READING = True
+
 
 class YomichanDictionary(object):
     def __init__(self):
@@ -87,7 +95,7 @@ def update_note(note):
 
     try:
         reading, meaning = yomidict.lookup(text)
-        if not note[reading_field].strip():
+        if not note[reading_field].strip() and DO_READING:
             note[reading_field] = reading
         if not note[meaning_field].strip():
             note[meaning_field] = meaning

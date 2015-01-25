@@ -7,4 +7,4 @@
 # See http://ichi2.net/anki/wiki/JapaneseSupport
 #
 
-import better_japanese_support.reading
+import japanese_meanings.main
