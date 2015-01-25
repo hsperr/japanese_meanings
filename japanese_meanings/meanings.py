@@ -36,46 +36,59 @@ class YomichanDictionary(object):
         self.lang = yomi_dict.initLanguage()
 
     def lookup(self, expr):
+        expr = expr.strip()
         meaning_expr = expr
         final_meanings = []
         done = set()
         while meaning_expr:
+            #returns [list_of_entries,num_entries]
             meanings = self.lang.findTerm(meaning_expr)
             if meanings and meanings[1]>0:
                 meaning = meanings[0][0]
 
                 src = meaning['source'] or 'None'
+                #if we process a sentence, the same vocab might appear twice
                 if not src in done:
                     done.add(src)
-                    read = meaning['reading'] or None
-                    mn = meaning['glossary'] or None
+                    read = meaning['reading'] or src
+                    mn = meaning['glossary'] or 'No Meaning Found'
 
                     final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
 
-                for meaning in meanings[0][1:]:
-                    if not meaning['source']==src:
-                        break
+                    #see if the same source (kanji) has different meanings/readings
+                    for meaning in meanings[0][1:]:
+                        if not meaning['source'] == src:
+                            break
 
-                    read = meaning['reading'] or None
-                    mn = meaning['glossary'] or None
-                    final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
+                        read = meaning['reading'] or src
+                        mn = meaning['glossary'] or 'No Meaning Found'
+                        final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
 
 
+                #remove current vocab from expression
                 meaning_expr = meaning_expr[len(src):]
             else:
+                #we didn't find a vocab so just move one character forward
                 meaning_expr = meaning_expr[1:]
 
         expression_string = expr
         meaning_string = []
+        #move through the final meanings list and sort them by length of the expression
+        #we do this because we replace a kanji in the original sentence with kanji[reading]
+        #some kanji could be substring of another kanji
         for entries in sorted(final_meanings, key=lambda x: -len(x['Expression'])):
             if entries['Reading']:
+                #search if the expression actually is a kanji
                 if re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
                     expression_string = expression_string.replace(entries['Expression'], entries['Expression']+'['+entries['Reading']+']')
             if entries['Meaning']:
+                #if we have only one vocab and reading then we do not want to
+                #output reading - meaning but just the meaning
                 if len(final_meanings) == 1:
                     meaning_string.append(entries['Meaning'])
                 else:
-                    if len(entries['Expression']) > 4 or re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
+                    #only output meanings for kanji or hiragana/katakana longer than 2 letters
+                    if expr == entries['Expression'] or len(entries['Expression']) > 2 or re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
                         meaning_string.append(entries['Reading']+' - '+entries['Meaning'])
 
         return expression_string, '<br>'.join(meaning_string)
