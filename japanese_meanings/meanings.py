@@ -133,6 +133,9 @@ def on_focus_lost(flag, note, fidx):
     if not yomidict:
         return flag
 
+    if NOTE_TYPE_NAME not in note.model()['name'].lower():
+        return flag
+
     #check whether the event comes from the source field
     if fidx != mw.col.models.fieldNames(note.model()).index(source_field):
         return flag
