@@ -73,6 +73,9 @@ class YomichanDictionary(object):
 
         expression_string = expr
         meaning_string = []
+        deduped_meanings = set()
+
+        special_meaning_tokens = ["(s,", "(f,", "(u,", "(g,", "(p,", "(m,",  "(s)", "(f)", "(u)", "(g)", "(p)", "(m)"]
         #move through the final meanings list and sort them by length of the expression
         #we do this because we replace a kanji in the original sentence with kanji[reading]
         #some kanji could be substring of another kanji
@@ -91,6 +94,11 @@ class YomichanDictionary(object):
                     if expr == entries['Expression'] or len(entries['Expression']) > 2 or re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
                         meaning_string.append(entries['Reading']+' - '+entries['Meaning'])
 
+                        if not any(token in entries['Meaning'] for token in special_meaning_tokens):
+                            deduped_meanings.add(entries['Reading']+' - '+entries['Meaning'])
+
+        if deduped_meanings:
+            return expression_string, '<br>'.join(deduped_meanings)
         return expression_string, '<br>'.join(meaning_string)
 
 
@@ -188,4 +196,8 @@ if __name__ == "__main__":
     expr = u"千葉"
     print yomidict.lookup(expr).encode("utf-8")
     expr = u"滅"
+    print yomidict.lookup(expr).encode("utf-8")
+    expr = u"山口"
+    print yomidict.lookup(expr).encode("utf-8")
+    expr = u"時々"
     print yomidict.lookup(expr).encode("utf-8")
