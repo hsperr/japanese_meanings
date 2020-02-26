@@ -9,12 +9,14 @@
 import re
 import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+
 from anki.hooks import addHook
 from aqt import mw
 
-import yomi_dict
+from . import yomi_dict
 
 
 source_field = 'Expression'
@@ -79,7 +81,7 @@ class YomichanDictionary(object):
         for entries in sorted(final_meanings, key=lambda x: -len(x['Expression'])):
             if entries['Reading']:
                 #search if the expression actually is a kanji
-                if re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
+                if re.search(r'[\u4e00-\u9faf]', entries['Expression']):
                     expression_string = expression_string.replace(entries['Expression'], entries['Expression']+'['+entries['Reading']+']')
             if entries['Meaning']:
                 #if we have only one vocab and reading then we do not want to
@@ -88,7 +90,7 @@ class YomichanDictionary(object):
                     meaning_string.append(entries['Meaning'])
                 else:
                     #only output meanings for kanji or hiragana/katakana longer than 2 letters
-                    if expr == entries['Expression'] or len(entries['Expression']) > 2 or re.search(ur'[\u4e00-\u9faf]', entries['Expression']):
+                    if expr == entries['Expression'] or len(entries['Expression']) > 2 or re.search(r'[\u4e00-\u9faf]', entries['Expression']):
                         meaning_string.append(entries['Reading']+' - '+entries['Meaning'])
 
         return expression_string, '<br>'.join(meaning_string)
@@ -122,7 +124,7 @@ def update_note(note):
             note[reading_field] = reading
         if not note[meaning_field].strip():
             note[meaning_field] = meaning
-    except Exception, e:
+    except Exception as e:
         raise e
 
     return True
@@ -162,7 +164,11 @@ def regenerate_bulk_readings(note_ids):
 
 def setup_menu_item(browser):
     a = QAction(MENU_NAME, browser)
-    browser.connect(a, SIGNAL("triggered()"), lambda e=browser: on_regenerate(e))
+
+    # Default parameter trick wasn't working. This is hacky but works
+    saved = browser
+    a.triggered.connect(lambda: on_regenerate(saved))
+
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
 
@@ -176,16 +182,16 @@ addHook("browser.setupMenus", setup_menu_item)
 if __name__ == "__main__":
     #examples are shamelessly taken from Japanese Support Anki Plugin
     expr = u"カリン、自分でまいた種は自分で刈り取れ"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))
     expr = u"昨日、林檎を2個買った。"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))
     expr = u"真莉、大好きだよん＾＾"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))
     expr = u"彼２０００万も使った。"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))
     expr = u"彼二千三百六十円も使った。"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))
     expr = u"千葉"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))
     expr = u"滅"
-    print yomidict.lookup(expr).encode("utf-8")
+    print(yomidict.lookup(expr).encode("utf-8"))

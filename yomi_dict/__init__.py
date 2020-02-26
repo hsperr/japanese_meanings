@@ -14,12 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
 
-
-import deinflect
-import dictionary
+from . import deinflect
+from . import dictionary
+from . import translate
 import os.path
-import translate
 
 
 def initLanguage():
