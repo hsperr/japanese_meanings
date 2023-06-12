@@ -18,11 +18,15 @@ from aqt import mw
 
 from . import yomi_dict
 
+config = mw.addonManager.getConfig(__name__)
 
-source_field = 'Expression'
-reading_field = 'Reading'
-meaning_field = 'Meaning'
-NOTE_TYPE_NAME = 'japanese'
+source_field = config["source_field"]
+reading_field = config["reading_field"]
+meaning_field = config["meaning_field"]
+speech_field = config["speech_field"]
+NOTE_TYPE_NAME = config["note_type_name"]
+definitions = config["max_entries"]
+read_in_def= config["reading_in_definition"]
 
 try:
     import japanese.reading
@@ -30,7 +34,7 @@ try:
     MENU_NAME = 'Bulk-add Meanings'
 except:
     DO_READING = True
-    MENU_NAME = 'Bulk-add Readings/Meanings'
+    MENU_NAME = 'Bulk-add Readings/Meanings/Speech'
 
 
 class YomichanDictionary(object):
@@ -54,8 +58,11 @@ class YomichanDictionary(object):
                     done.add(src)
                     read = meaning['reading'] or src
                     mn = meaning['glossary'] or 'No Meaning Found'
+                    tg = meaning['tags']
 
-                    final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
+		
+
+                    final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn, 'Tags':tg})
 
                     #see if the same source (kanji) has different meanings/readings
                     for meaning in meanings[0][1:]:
@@ -64,7 +71,8 @@ class YomichanDictionary(object):
 
                         read = meaning['reading'] or src
                         mn = meaning['glossary'] or 'No Meaning Found'
-                        final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn})
+                        tag = meaning['tags'] 
+                        final_meanings.append({'Expression': src, 'Reading': read, 'Meaning': mn, 'Tags': tg})
 
 
                 #remove current vocab from expression
@@ -75,25 +83,36 @@ class YomichanDictionary(object):
 
         expression_string = expr
         meaning_string = []
+        tags_string = []
+        idef=0
         #move through the final meanings list and sort them by length of the expression
         #we do this because we replace a kanji in the original sentence with kanji[reading]
-        #some kanji could be substring of another kanji
+        #some kanji could be substring of another kanji.
         for entries in sorted(final_meanings, key=lambda x: -len(x['Expression'])):
             if entries['Reading']:
                 #search if the expression actually is a kanji
                 if re.search(r'[\u4e00-\u9faf]', entries['Expression']):
                     expression_string = expression_string.replace(entries['Expression'], entries['Expression']+'['+entries['Reading']+']')
             if entries['Meaning']:
-                #if we have only one vocab and reading then we do not want to
-                #output reading - meaning but just the meaning
-                if len(final_meanings) == 1:
-                    meaning_string.append(entries['Meaning'])
-                else:
-                    #only output meanings for kanji or hiragana/katakana longer than 2 letters
-                    if expr == entries['Expression'] or len(entries['Expression']) > 2 or re.search(r'[\u4e00-\u9faf]', entries['Expression']):
-                        meaning_string.append(entries['Reading']+' - '+entries['Meaning'])
+              
+                #only output meanings for kanji or hiragana/katakana longer than 2 letters
+                if expr == entries['Expression'] or len(entries['Expression']) > 2 or re.search(r'[\u4e00-\u9faf]', entries['Expression']):
+                    idef=idef+1
+                    #only output definitions up to the specified number
+                    if idef <= definitions:
+                        #output reading - meaning if configured, and more than one meaning
+                        if read_in_def & len(final_meanings) > 1:
+                            meaning_string.append(entries['Reading']+' - '+entries['Meaning'])
+                        else:
+                            meaning_string.append('- '+entries['Meaning'])
+                    tags_string.append(' '.join(entries['Tags']))
+              
+        if len(tags_string)>0:
+            tt = tags_string[0]
+        else:
+            tt = ''
 
-        return expression_string, '<br>'.join(meaning_string)
+        return expression_string, '<br>'.join(meaning_string), tt
 
 
 def update_note(note):
@@ -108,6 +127,16 @@ def update_note(note):
     if not source_field in note:
         return False
 
+    else:
+        if not note[speech_field].strip():
+            text = mw.col.media.strip(note[source_field])
+            if text.strip():
+                reading, meaning, tags = yomidict.lookup(text)
+                note[speech_field] = tags
+              
+            
+                
+
     if not meaning_field in note or not reading_field in note:
         return False
 
@@ -119,7 +148,7 @@ def update_note(note):
         return False
 
     try:
-        reading, meaning = yomidict.lookup(text)
+        reading, meaning, tags = yomidict.lookup(text)
         if not note[reading_field].strip() and DO_READING:
             note[reading_field] = reading
         if not note[meaning_field].strip():

@@ -1,0 +1,7 @@
+{
+    "source_field": "Expression",
+    "reading_field": "Reading",
+    "meaning_field": "Meaning",
+    "speech_field": "JMDict_Tags",
+    "note_type_name": "japanese"	
+}
