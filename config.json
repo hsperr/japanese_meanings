@@ -1,0 +1,9 @@
+{
+	"max_entries": 2, 
+	"reading_in_definition": 0,
+	"meaning_field": "Meaning",
+	"note_type_name": "japanese",
+	"reading_field": "Reading",
+	"source_field": "Expression",
+	"speech_field": "JMDict_Tags"
+}
